@@ -120,6 +120,53 @@ button{
     font-size:24px;
     z-index:300;
 }
+
+.hit{
+    animation: hitAnim 0.5s forwards;
+}
+
+@keyframes hitAnim{
+
+    0%{
+        transform:translateX(-50%) scale(1);
+    }
+
+    20%{
+        transform:translateX(-50%) scale(1.2) rotate(-10deg);
+    }
+
+    40%{
+        transform:translateX(-50%) scale(0.9) rotate(10deg);
+    }
+
+    100%{
+        transform:translateX(-50%) scale(0);
+        opacity:0;
+    }
+
+}
+
+.sweat{
+    position:absolute;
+    font-size:40px;
+    animation:sweatAnim .6s forwards;
+    pointer-events:none;
+}
+
+@keyframes sweatAnim{
+
+    0%{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+    100%{
+        opacity:0;
+        transform:translateY(-80px);
+    }
+
+}
+
 </style>
 </head>
 
