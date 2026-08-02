@@ -307,12 +307,12 @@ const c=characters[Math.floor(Math.random()*characters.length)];
 
 current=c;
 
-current.element = img;
-
 const img=document.createElement("div");
 img.className="character";
 img.style.fontSize="120px";
 img.textContent=c.emoji;
+
+current.element = img;
 
 let y=-200;
 
