@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ビンタジャッジ</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:sans-serif;
+    overflow:hidden;
+    background:#87ceeb;
+}
+
+.screen{
+    width:100vw;
+    height:100vh;
+}
+
+.hidden{
+    display:none;
+}
+
+/* ホーム */
+#home{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:20px;
+    background:linear-gradient(#87ceeb,#ffffff);
+}
+
+h1{
+    font-size:40px;
+}
+
+button{
+    padding:15px 30px;
+    font-size:20px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+}
+
+/* ゲーム */
+#game{
+    position:relative;
+    background:#d8f0ff;
+}
+
+#ui{
+    position:absolute;
+    top:10px;
+    left:10px;
+    z-index:100;
+    font-size:22px;
+    font-weight:bold;
+}
+
+#queue{
+    position:absolute;
+    width:100%;
+    height:100%;
+}
+
+.character{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    width:180px;
+    height:180px;
+    object-fit:contain;
+}
+
+.player{
+    position:absolute;
+    bottom:20px;
+    width:100%;
+    text-align:center;
+    z-index:50;
+}
+
+.head{
+    font-size:70px;
+}
+
+.hands{
+    font-size:70px;
+}
+
+#message{
+    position:absolute;
+    top:50%;
+    width:100%;
+    text-align:center;
+    font-size:50px;
+    font-weight:bold;
+    color:red;
+    z-index:200;
+    pointer-events:none;
+}
+
+#howto{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.8);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:30px;
+    font-size:24px;
+    z-index:300;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ホーム -->
+<div id="home" class="screen">
+    <h1>👋 ビンタジャッジ</h1>
+
+    <button id="startBtn">スタート</button>
+    <button id="ruleBtn">説明</button>
+</div>
+
+<!-- ゲーム -->
+<div id="game" class="screen hidden">
+
+    <div id="ui">
+        SCORE: <span id="score">0</span><br>
+        MISS: <span id="miss">0</span>/3
+    </div>
+
+    <div id="message"></div>
+
+    <div id="queue"></div>
+
+    <div class="player">
+        <div class="head">😀</div>
+        <div class="hands">🤚 🤚</div>
+    </div>
+
+</div>
+
+<div id="howto" class="hidden">
+<div>
+<h2>遊び方</h2>
+<br>
+右スワイプ → ビンタ<br>
+左スワイプ → スルー<br><br>
+
+OK<br>
+変なおじさん<br>
+変なおばさん<br>
+宇宙人<br>
+怪物<br><br>
+
+NG<br>
+赤ちゃん<br>
+子供<br>
+かわいい動物<br><br>
+
+NGを3回ビンタするとゲームオーバー<br><br>
+
+<button onclick="closeHowTo()">閉じる</button>
+</div>
+</div>
+
+<script>
+
+const characters = [
+
+{
+name:"oldman",
+img:"images/oldman1.png",
+good:true
+},
+
+{
+name:"oldwoman",
+img:"images/oldwoman1.png",
+good:true
+},
+
+{
+name:"alien",
+img:"images/alien1.png",
+good:true
+},
+
+{
+name:"monster",
+img:"images/monster1.png",
+good:true
+},
+
+{
+name:"baby",
+img:"images/baby1.png",
+good:false
+},
+
+{
+name:"child",
+img:"images/child1.png",
+good:false
+},
+
+{
+name:"animal",
+img:"images/animal1.png",
+good:false
+}
+
+];
+
+const home=document.getElementById("home");
+const game=document.getElementById("game");
+const queue=document.getElementById("queue");
+const scoreText=document.getElementById("score");
+const missText=document.getElementById("miss");
+const message=document.getElementById("message");
+
+let score=0;
+let miss=0;
+let speed=2000;
+
+let current=null;
+let spawnTimer=null;
+
+function startGame(){
+
+home.classList.add("hidden");
+game.classList.remove("hidden");
+
+score=0;
+miss=0;
+speed=2000;
+
+scoreText.textContent=0;
+missText.textContent=0;
+
+spawnCharacter();
+
+}
+
+function spawnCharacter(){
+
+queue.innerHTML="";
+
+const c=characters[Math.floor(Math.random()*characters.length)];
+
+current=c;
+
+const img=document.createElement("img");
+img.className="character";
+img.src=c.img;
+
+let y=-200;
+
+img.style.top=y+"px";
+
+queue.appendChild(img);
+
+let move=setInterval(()=>{
+
+y+=4;
+
+img.style.top=y+"px";
+
+if(y>window.innerHeight-280){
+
+gameOver();
+
+clearInterval(move);
+
+}
+
+},16);
+
+current.moveTimer=move;
+
+}
+
+function slap(){
+
+if(!current)return;
+
+clearInterval(current.moveTimer);
+
+showMessage("👋 パシッ!");
+
+if(current.good){
+
+score++;
+
+scoreText.textContent=score;
+
+if(score>=10){
+speed=1200;
+}
+
+setTimeout(spawnCharacter,300);
+
+}else{
+
+miss++;
+
+missText.textContent=miss;
+
+if(miss>=3){
+gameOver();
+return;
+}
+
+setTimeout(spawnCharacter,300);
+
+}
+
+}
+
+function skip(){
+
+if(!current)return;
+
+clearInterval(current.moveTimer);
+
+setTimeout(spawnCharacter,200);
+
+}
+
+function gameOver(){
+
+clearInterval(spawnTimer);
+
+alert(
+"ゲームオーバー\n\n"+
+"スコア: "+score
+);
+
+location.reload();
+
+}
+
+function showMessage(text){
+
+message.textContent=text;
+
+setTimeout(()=>{
+message.textContent="";
+},300);
+
+}
+
+let startX=0;
+
+document.addEventListener("touchstart",(e)=>{
+
+startX=e.touches[0].clientX;
+
+});
+
+document.addEventListener("touchend",(e)=>{
+
+let endX=e.changedTouches[0].clientX;
+
+let diff=endX-startX;
+
+if(diff>80){
+
+slap();
+
+}else if(diff<-80){
+
+skip();
+
+}
+
+});
+
+document.addEventListener("mousedown",(e)=>{
+startX=e.clientX;
+});
+
+document.addEventListener("mouseup",(e)=>{
+
+let diff=e.clientX-startX;
+
+if(diff>80){
+slap();
+}
+else if(diff<-80){
+skip();
+}
+
+});
+
+document.getElementById("startBtn")
+.addEventListener("click",startGame);
+
+document.getElementById("ruleBtn")
+.addEventListener("click",()=>{
+
+document.getElementById("howto")
+.classList.remove("hidden");
+
+});
+
+function closeHowTo(){
+
+document.getElementById("howto")
+.classList.add("hidden");
+
+}
+
+</script>
+
+</body>
+</html>
