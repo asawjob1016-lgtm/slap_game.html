@@ -360,6 +360,23 @@ clearInterval(current.moveTimer);
 
 showMessage("👋 パシッ!");
 
+current.element.classList.add("hit");
+
+const sweat=document.createElement("div");
+
+sweat.className="sweat";
+
+if(current.good){
+    sweat.textContent="💦";
+}else{
+    sweat.textContent="😭";
+}
+
+sweat.style.left="55%";
+sweat.style.top=current.element.style.top;
+
+queue.appendChild(sweat);
+
 if(current.good){
 
 score++;
