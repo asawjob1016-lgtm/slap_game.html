@@ -275,7 +275,17 @@ queue.appendChild(img);
 
 let move=setInterval(()=>{
 
-y+=4;
+let moveSpeed = 4;
+
+if(score >= 10){
+    moveSpeed = 7;
+}
+
+if(score >= 20){
+    moveSpeed = 10;
+}
+
+y += moveSpeed;
 
 img.style.top=y+"px";
 
