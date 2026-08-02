@@ -1,1 +1,1 @@
-# slap_game.html
+# slap_game
